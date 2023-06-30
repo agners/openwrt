@@ -206,13 +206,24 @@ define Device/netgear_wax220
   DEVICE_MODEL := WAX220
   DEVICE_DTS := mt7986b-netgear-wax220
   DEVICE_DTS_DIR := ../dts
+  NETGEAR_ENC_MODEL := WAX220
+  NETGEAR_ENC_REGION := US
   DEVICE_PACKAGES := kmod-mt7986-firmware mt7986-wo-firmware
   IMAGES := sysupgrade.bin
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  KERNEL_SIZE := 6144k
+  IMAGE_SIZE := 32768k
   KERNEL_IN_UBI := 1
   KERNEL := kernel-bin | lzma | \
         fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb
   KERNEL_INITRAMFS := kernel-bin | lzma | \
         fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb with-initrd | pad-to 64k
+  KERNEL_INITRAMFS_SUFFIX := -recovery.itb
+  IMAGES += factory.img
+  IMAGE/factory.img := append-kernel | pad-to $$(KERNEL_SIZE) | \
+	append-ubi | check-size | netgear-encrypted-factory
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
 TARGET_DEVICES += netgear_wax220
